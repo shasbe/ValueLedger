@@ -27,6 +27,14 @@ Migration, doing refactor work, and produced commit `a3f91c` which merged in PR 
 
 Build spec: [SPEC.md](SPEC.md).
 
+## Architecture
+
+![ValueLedger architecture](docs/architecture.svg)
+
+Everything that reads prompts runs on the developer's machine. Only labels, token
+counts and outcomes cross into the cloud, which is what makes it installable inside
+an organization that would never ship prompt text to a third party.
+
 ## Status
 
 | Component | State |
