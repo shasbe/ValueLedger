@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Spend Ledger</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f7f8fa; --card:#ffffff; --sunk:#eef0f4;
+  --ink:#101319; --ink2:#4a5160; --ink3:#7c8496;
+  --rule:#e3e6ec; --rule2:#cfd4de;
+  --accent:#2a78d6;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#4a3aa7;
+  --muted:#9aa3b2;
+  --warn:#b45309; --crit:#b3261e; --good:#0f7a52;
+  --modelled:#fbf7ef;
+  --shadow:0 1px 2px rgba(16,19,25,.05),0 1px 1px rgba(16,19,25,.03);
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#14161a; --card:#1b1e24; --sunk:#22262e;
+  --ink:#f2f4f8; --ink2:#a9b1c2; --ink3:#737c8d;
+  --rule:#2a2f38; --rule2:#3a414d;
+  --accent:#3987e5;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9085e9;
+  --muted:#6b7385;
+  --warn:#d98324; --crit:#e66767; --good:#199e70;
+  --modelled:#20201c;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#14161a; --card:#1b1e24; --sunk:#22262e;
+  --ink:#f2f4f8; --ink2:#a9b1c2; --ink3:#737c8d;
+  --rule:#2a2f38; --rule2:#3a414d;
+  --accent:#3987e5;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9085e9;
+  --muted:#6b7385;
+  --warn:#d98324; --crit:#e66767; --good:#199e70;
+  --modelled:#20201c;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;
+  line-height:1.55;margin:0;padding-block:0 56px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;padding-inline:16px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* masthead */
+.mast{border-bottom:1px solid var(--rule);padding-block:34px 24px;margin-bottom:30px}
+.brandrow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+.brand{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:-.015em}
+.brand em{font-style:normal;color:var(--accent)}
+.period{font-size:12px;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase}
+.spacer{flex:1}
+.live{font-size:11px;color:var(--ink3);display:inline-flex;align-items:center;gap:6px}
+.live b{width:6px;height:6px;border-radius:50%;background:var(--good);display:inline-block}
+.herorow{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;align-items:end}
+@media(max-width:720px){.herorow{grid-template-columns:1fr;gap:26px;align-items:start}}
+.herolab{font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3);
+  margin-bottom:8px}
+.hero{font-family:var(--serif);font-size:clamp(46px,9vw,74px);font-weight:500;line-height:.96;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.herosub{font-size:13.5px;color:var(--ink2);margin-top:10px;max-width:46ch}
+.cov{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:9px;overflow:hidden}
+.cov>div{background:var(--card);padding:13px 15px}
+.cov .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3)}
+.cov .v{font-family:var(--mono);font-size:25px;font-weight:500;letter-spacing:-.02em;margin-top:5px}
+.cov .n{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+
+/* bands */
+.band{margin-bottom:40px}
+.bhead{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.bnum{font-family:var(--mono);font-size:11px;color:var(--ink3);padding-top:4px}
+.btitle{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:-.015em}
+.bnote{font-size:13px;color:var(--ink2);max-width:66ch;margin:-6px 0 18px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  padding:20px;box-shadow:var(--shadow)}
+
+/* initiative rows */
+.irow{display:grid;grid-template-columns:168px minmax(0,1fr) 92px;gap:16px;align-items:center;
+  padding:11px 0;border-bottom:1px solid var(--rule)}
+.irow:last-child{border-bottom:none}
+@media(max-width:640px){.irow{grid-template-columns:1fr auto;gap:5px 12px}
+  .irow .track{grid-column:1/-1;order:3}}
+.iname{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:500;min-width:0}
+.dot{width:9px;height:9px;border-radius:2px;flex:none}
+.iname span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{height:9px;background:var(--sunk);border-radius:5px;overflow:hidden;display:flex}
+.track i{display:block;height:100%;border-radius:5px}
+.ival{text-align:right;font-family:var(--mono);font-size:13.5px;font-variant-numeric:tabular-nums}
+.isub{font-size:11.5px;color:var(--ink3);font-family:var(--mono)}
+
+/* stat strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:11px;overflow:hidden}
+@media(max-width:760px){.strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.strip{grid-template-columns:1fr}}
+.strip>div{background:var(--card);padding:16px 17px}
+.strip .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3)}
+.strip .v{font-family:var(--mono);font-size:27px;font-weight:500;letter-spacing:-.025em;
+  margin-top:6px;line-height:1}
+.strip .n{font-size:11.5px;color:var(--ink3);margin-top:6px;line-height:1.45}
+.strip .v.warn{color:var(--warn)} .strip .v.crit{color:var(--crit)}
+
+/* budget */
+.btrack{height:26px;background:var(--sunk);border-radius:5px;position:relative;overflow:hidden}
+.btrack i{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.85}
+.btrack u{position:absolute;top:0;bottom:0;width:2px;background:var(--ink2);text-decoration:none}
+.blab{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 9px;font-family:var(--mono);font-size:11.5px;color:var(--ink)}
+
+/* modelled band */
+.modelled{background:var(--modelled);border:1px solid var(--rule2);border-radius:11px;padding:22px}
+.tag{display:inline-block;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;
+  padding:3px 8px;border-radius:99px;border:1px solid currentColor;font-weight:500}
+.tag.m{color:var(--warn)} .tag.meas{color:var(--good)}
+.rangewrap{margin:22px 0 8px}
+.rangebar{margin-top:30px}
+.rangebar{height:34px;position:relative;background:var(--sunk);border-radius:6px}
+.rangefill{position:absolute;top:0;bottom:0;background:var(--accent);opacity:.22;border-radius:6px}
+.rangept{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--accent);border-radius:2px}
+.rangeone{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--crit)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;
+  color:var(--ink3);margin-top:9px}
+.assume{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.assume th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink3);font-weight:500;padding:7px 10px 7px 0;border-bottom:1px solid var(--rule)}
+.assume td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.assume tr:last-child td{border-bottom:none}
+.assume .r{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.src{font-size:10.5px;padding:2px 7px;border-radius:99px;border:1px solid currentColor;
+  white-space:nowrap}
+.src.measured{color:var(--good)} .src.survey{color:var(--ink3)} .src.est{color:var(--warn)}
+.caveats{margin:16px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink2);line-height:1.6}
+.caveats li{margin-bottom:6px}
+
+/* misc */
+.tworow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.tworow{grid-template-columns:1fr}}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;font-size:11.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+figure{margin:0}
+svg{display:block;max-width:100%;height:auto}
+.state{background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  padding:34px 22px;text-align:center}
+.state h3{font-family:var(--serif);font-size:19px;margin:0 0 8px;font-weight:600}
+.state p{color:var(--ink2);font-size:13.5px;margin:0 auto;max-width:56ch;line-height:1.6}
+.state.bad{border-color:var(--crit)}
+.state.bad h3{color:var(--crit)}
+.live b.stale{background:var(--crit)}
+.live b.loading{background:var(--ink3)}
+.colophon{border-top:1px solid var(--rule);padding-top:20px;font-size:12px;color:var(--ink3);
+  line-height:1.65}
+.colophon b{color:var(--ink2);font-weight:500}
+a{color:var(--accent)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="brandrow">
+      <div class="brand">Value<em>Ledger</em></div>
+      <div class="period">loading&hellip;</div>
+      <div class="spacer"></div>
+      <div class="live"><b></b><span id="liveNote">live</span></div>
+    </div>
+    <div class="herorow">
+      <div>
+        <div class="herolab">Attributed Claude spend</div>
+        <div class="hero" id="heroSpend">$1,792.11</div>
+        <p class="herosub">Across <span class="num" id="heroSessions">1,071</span> sessions
+          on Claude Code, Cowork and chat &mdash; each one mapped to the business initiative it
+          served.</p>
+      </div>
+      <div class="cov">
+        <div>
+          <div class="k">Classification coverage</div>
+          <div class="v" id="covClass">95.7%</div>
+          <div class="n"><span id="covUnclass">46</span> sessions matched no initiative</div>
+        </div>
+        <div>
+          <div class="k">Cost coverage</div>
+          <div class="v" id="covCost">86.5%</div>
+          <div class="n">The rest is chat: classified, not priceable</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="band">
+    <div class="bhead"><span class="bnum">01</span><h2 class="btitle">Where the money went</h2></div>
+    <p class="bnote">Every session classified against the initiatives this organization defined.
+      Bars are attributed spend; the figure beneath each is cost per merged pull request.</p>
+    <div class="card" id="initCard"></div>
+  </section>
+
+  <section class="band">
+    <div class="bhead"><span class="bnum">02</span><h2 class="btitle">What came out of it</h2></div>
+    <p class="bnote">Verifiable output only &mdash; commits, merged pull requests and tests that
+      exist in the repositories. No estimate of what the work was worth.</p>
+    <div class="strip" id="outStrip"></div>
+    <div class="legend">
+      <span><b style="color:var(--warn)">Dark spend</b>&nbsp;&mdash; sessions that produced no durable artifact.</span>
+      <span><b style="color:var(--crit)">Rework</b>&nbsp;&mdash; work later reverted.</span>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="bhead"><span class="bnum">03</span><h2 class="btitle">Budget consumed</h2></div>
+    <p class="bnote">Quarter 3 is <span class="num" id="periodPct">96</span>% elapsed.
+      A bar past the marker is running ahead of its budget.</p>
+    <div class="card" id="budgetCard"></div>
+  </section>
+
+  <section class="band">
+    <div class="bhead"><span class="bnum">04</span><h2 class="btitle">Ninety days</h2></div>
+    <p class="bnote">Daily attributed spend. The weekly rhythm is real &mdash; weekends fall away.</p>
+    <div class="card"><figure id="trendFig"></figure></div>
+  </section>
+
+  <section class="band">
+    <div class="tworow">
+      <div>
+        <div class="bhead"><span class="bnum">05</span><h2 class="btitle">Chargeback</h2></div>
+        <p class="bnote">By cost center, for the general ledger.</p>
+        <div class="card" id="ccCard"></div>
+      </div>
+      <div>
+        <div class="bhead"><span class="bnum">06</span><h2 class="btitle">By surface</h2></div>
+        <p class="bnote">Chat can be classified but not priced.</p>
+        <div class="card" id="surfCard"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="bhead"><span class="bnum">07</span><h2 class="btitle">What it was worth</h2>
+      <span class="tag m">Modelled</span></div>
+    <p class="bnote">Everything above is measured. This is not. It rests on baselines
+      this organization supplied &mdash; what a unit of work costs a human &mdash; so it is shown with its
+      assumptions and the range they produce.</p>
+    <div class="modelled" id="prodCard"></div>
+  </section>
+
+  <footer class="wrap colophon" id="colophon"></footer>
+</div>
+
+<script>
+const SNAP = {
+  summary:{attributed_spend_usd:1792.1092,sessions:1071,merged_prs:318,cost_per_merged_pr_usd:5.64,
+    dark_spend_usd:339.1729,dark_spend_pct:18.9,rework_spend_usd:74.5105,rework_spend_pct:4.2,
+    classification_overhead_usd:2.3126,classification_overhead_pct:0.13,
+    outcomes:{commit:2734,pr_merged:318,pr_opened:412,revert:40,test_added:212},
+    coverage:{classification_pct:95.7,cost_pct:86.5,unclassified_sessions:46}},
+  by_initiative:[
+    {label:"Payments Migration",spend_usd:470.74,sessions:287,merged_prs:90,dark_spend_usd:62.17,cost_per_merged_pr_usd:5.23},
+    {label:"Data Platform",spend_usd:350.94,sessions:211,merged_prs:63,dark_spend_usd:54.13,cost_per_merged_pr_usd:5.57},
+    {label:"Developer Platform",spend_usd:300.42,sessions:171,merged_prs:46,dark_spend_usd:88.04,cost_per_merged_pr_usd:6.53},
+    {label:"Billing UX",spend_usd:252.65,sessions:142,merged_prs:44,dark_spend_usd:58.60,cost_per_merged_pr_usd:5.74},
+    {label:"Mobile Checkout",spend_usd:183.49,sessions:112,merged_prs:34,dark_spend_usd:33.52,cost_per_merged_pr_usd:5.40},
+    {label:"Fraud Detection",spend_usd:157.82,sessions:102,merged_prs:31,dark_spend_usd:22.50,cost_per_merged_pr_usd:5.09},
+    {label:"Unclassified",spend_usd:76.04,sessions:46,merged_prs:10,dark_spend_usd:20.22,cost_per_merged_pr_usd:7.60}],
+  by_cost_center:[{label:"CC-1000 Engineering",spend_usd:615.34,sessions:374},
+    {label:"CC-4000 Platform",spend_usd:480.62,sessions:288},
+    {label:"CC-3000 Growth",spend_usd:388.51,sessions:222},
+    {label:"CC-2000 Data",spend_usd:307.65,sessions:187}],
+  by_surface:[{label:"claude_code",spend_usd:1468.27,sessions:758,measured_sessions:758},
+    {label:"cowork",spend_usd:323.84,sessions:168,measured_sessions:168},
+    {label:"chat",spend_usd:0,sessions:145,measured_sessions:0}],
+  trend:[]
+};
+const BUDGETS = {"Payments Migration":12000,"Data Platform":9000,"Developer Platform":7500,
+  "Billing UX":6000,"Mobile Checkout":5500,"Fraud Detection":8000};
+const PROD_SNAP = {
+  measured:{actual_human_hours:1218.2,units_produced:2157,units_measured_pct:2.4,
+    session_minutes_cap:90,sessions_with_output:776,sessions_in_scope:1071},
+  modelled:{human_equivalent_hours:1935.1,hours_saved:716.8,speedup_x:1.59},
+  sensitivity:{speedup_low:0.82,speedup_high:3.2,hours_saved_low:-221.1,hours_saved_high:2686.0},
+  modelled_coverage:{coverage_pct:70.2,sessions_excluded_reverted:33},
+  assumptions:[
+    {task_type:"marketing-artifact",unit:"slide",human_minutes_per_unit:10,range_minutes:[7,15],source:"2026 design team time study",source_type:"customer_measured",units_counted:1229},
+    {task_type:"data-analysis",unit:"analysis",human_minutes_per_unit:120,range_minutes:[60,240],source:"Analytics team self-report",source_type:"team_survey",units_counted:363},
+    {task_type:"ops-support",unit:"incident",human_minutes_per_unit:45,range_minutes:[20,120],source:"Incident log median, 2026 H1",source_type:"customer_measured",units_counted:273},
+    {task_type:"strategy-doc",unit:"document",human_minutes_per_unit:180,range_minutes:[90,360],source:"Product team self-report, Q2 2026 retro",source_type:"team_survey",units_counted:156},
+    {task_type:"research",unit:"brief",human_minutes_per_unit:90,range_minutes:[45,180],source:"Industry benchmark, not validated internally",source_type:"industry_estimate",units_counted:85},
+    {task_type:"coding",unit:"merged_pr",human_minutes_per_unit:240,range_minutes:[120,480],source:"2026 engineering cycle-time study",source_type:"customer_measured",units_counted:51}],
+  caveats:["98% of counted units were extracted by the classifier rather than measured from git.",
+    "Human time is session wall-clock capped at 90 min/session; it overstates attention where a session was left open.",
+    "Hours saved is not converted to dollars. Multiplying by a loaded rate would add a second assumption on top of the baseline."]
+};
+const SERIES = ["--s1","--s2","--s3","--s4","--s5","--s6"];
+const SELF_HOSTED = location.pathname.startsWith("/dashboard");
+const API = SELF_HOSTED ? location.origin
+                        : "https://valueledger-795896542461.us-central1.run.app";
+const EMBEDDED_KEY = "vl_demo_f5be35cdc67ca44b4e43f4827ad52af9";
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const usd = (n,d=2) => "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const usd0 = n => "$" + Math.round(Number(n||0)).toLocaleString("en-US");
+const hue = (label,i) => label === "Unclassified" ? "var(--muted)" : `var(${SERIES[i % 6]})`;
+
+function renderInitiatives(rows){
+  const max = Math.max(...rows.map(r=>r.spend_usd),1);
+  $("#initCard").innerHTML = rows.map((r,i)=>`
+    <div class="irow">
+      <div class="iname"><i class="dot" style="background:${hue(r.label,i)}"></i>
+        <span>${esc(r.label)}</span></div>
+      <div class="track"><i style="width:${(100*r.spend_usd/max).toFixed(1)}%;background:${hue(r.label,i)}"></i></div>
+      <div>
+        <div class="ival">${usd(r.spend_usd)}</div>
+        <div class="isub">${r.cost_per_merged_pr_usd ? usd(r.cost_per_merged_pr_usd)+"/PR" : "&mdash;"}</div>
+      </div>
+    </div>`).join("");
+}
+
+function renderOutcomes(s){
+  const o = s.outcomes||{};
+  $("#outStrip").innerHTML = `
+    <div><div class="k">Merged pull requests</div><div class="v">${(o.pr_merged||0).toLocaleString()}</div>
+      <div class="n">${usd(s.cost_per_merged_pr_usd)} each</div></div>
+    <div><div class="k">Commits</div><div class="v">${(o.commit||0).toLocaleString()}</div>
+      <div class="n">${(o.test_added||0).toLocaleString()} sessions touched tests</div></div>
+    <div><div class="k">Dark spend</div><div class="v warn">${usd0(s.dark_spend_usd)}</div>
+      <div class="n">${s.dark_spend_pct}% produced no durable artifact</div></div>
+    <div><div class="k">Rework</div><div class="v crit">${usd0(s.rework_spend_usd)}</div>
+      <div class="n">${s.rework_spend_pct}% later reverted</div></div>`;
+}
+
+function renderBudgets(rows){
+  const elapsed = 96;
+  $("#periodPct").textContent = elapsed;
+  $("#budgetCard").innerHTML = rows.filter(r=>BUDGETS[r.label]).map((r,i)=>{
+    const b = BUDGETS[r.label], pct = 100*r.spend_usd/b;
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--rule)">
+      <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:7px;
+        font-size:13px;flex-wrap:wrap">
+        <span style="font-weight:500">${esc(r.label)}</span>
+        <span class="num" style="color:var(--ink3)">${usd0(r.spend_usd)} of ${usd0(b)}</span>
+      </div>
+      <div class="btrack">
+        <i style="width:${Math.min(pct,100).toFixed(2)}%;background:${hue(r.label,i)}"></i>
+        <u style="left:${elapsed}%" title="period elapsed"></u>
+        <span class="blab"><span>${pct.toFixed(1)}%</span><span style="color:var(--ink3)">period ${elapsed}%</span></span>
+      </div></div>`;
+  }).join("").replace(/border-bottom:1px solid var\(--rule\)"/, 'border-bottom:1px solid var(--rule)"');
+}
+
+function renderTrend(trend){
+  if(!trend || trend.length < 3){ $("#trendFig").innerHTML =
+    '<p style="color:var(--ink3);font-size:12.5px;margin:0">Daily trend unavailable.</p>'; return; }
+  const W=1000,H=210,P={t:14,r:14,b:26,l:46};
+  const vals = trend.map(d=>d.spend_usd);
+  const max = Math.max(...vals)*1.08, n = trend.length;
+  const x = i => P.l + i*(W-P.l-P.r)/(n-1);
+  const y = v => P.t + (1 - v/max)*(H-P.t-P.b);
+  const line = trend.map((d,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(d.spend_usd).toFixed(1)}`).join("");
+  const area = `${line}L${x(n-1).toFixed(1)},${y(0).toFixed(1)}L${x(0).toFixed(1)},${y(0).toFixed(1)}Z`;
+  const ticks = [0, max/2, max];
+  const grid = ticks.map(t=>`<line x1="${P.l}" x2="${W-P.r}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"
+      stroke="var(--rule)" stroke-width="1"/>
+    <text x="${P.l-9}" y="${(y(t)+4).toFixed(1)}" text-anchor="end" font-size="11"
+      font-family="var(--mono)" fill="var(--ink3)">${"$"+Math.round(t)}</text>`).join("");
+  const peakI = vals.indexOf(Math.max(...vals));
+  const lab = d => new Date(d+"T00:00:00Z").toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"});
+  $("#trendFig").innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily attributed spend over 90 days">
+      <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--accent)" stop-opacity=".26"/>
+        <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+      ${grid}
+      <path d="${area}" fill="url(#tg)"/>
+      <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${x(peakI).toFixed(1)}" cy="${y(vals[peakI]).toFixed(1)}" r="4"
+        fill="var(--accent)" stroke="var(--card)" stroke-width="2"/>
+      <text x="${x(peakI).toFixed(1)}" y="${(y(vals[peakI])-11).toFixed(1)}" text-anchor="middle"
+        font-size="11" font-family="var(--mono)" fill="var(--ink2)">${usd(vals[peakI],0)}</text>
+      <text x="${P.l}" y="${H-7}" font-size="11" font-family="var(--mono)"
+        fill="var(--ink3)">${lab(trend[0].day)}</text>
+      <text x="${W-P.r}" y="${H-7}" text-anchor="end" font-size="11" font-family="var(--mono)"
+        fill="var(--ink3)">${lab(trend[n-1].day)}</text>
+    </svg>`;
+}
+
+function renderCostCenters(rows){
+  const max = Math.max(...rows.map(r=>r.spend_usd),1);
+  $("#ccCard").innerHTML = rows.map(r=>`
+    <div style="padding:9px 0;border-bottom:1px solid var(--rule)">
+      <div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:6px">
+        <span>${esc(r.label)}</span><span class="num">${usd0(r.spend_usd)}</span></div>
+      <div class="track"><i style="width:${(100*r.spend_usd/max).toFixed(1)}%;background:var(--accent)"></i></div>
+    </div>`).join("");
+}
+
+function renderSurfaces(rows){
+  const NAMES = {claude_code:"Claude Code",cowork:"Cowork",chat:"Chat"};
+  const maxS = Math.max(...rows.map(r=>r.sessions),1);
+  $("#surfCard").innerHTML = rows.map(r=>{
+    const priced = r.measured_sessions>0;
+    return `<div style="padding:9px 0;border-bottom:1px solid var(--rule)">
+      <div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:6px">
+        <span>${esc(NAMES[r.label]||r.label)}</span>
+        <span class="num" ${priced?"":'style="color:var(--ink3)"'}>${priced?usd0(r.spend_usd):"not priceable"}</span></div>
+      <div class="track"><i style="width:${(100*r.sessions/maxS).toFixed(1)}%;
+        background:${priced?"var(--accent)":"var(--muted)"}"></i></div>
+      <div class="isub" style="margin-top:5px">${r.sessions} sessions</div>
+    </div>`;
+  }).join("");
+}
+
+function renderProductivity(p){
+  const m=p.measured,mo=p.modelled,se=p.sensitivity,c=p.modelled_coverage;
+  const lo=se.speedup_low, hi=se.speedup_high, pt=mo.speedup_x;
+  const scaleMax = Math.ceil(hi*1.12*10)/10, pos = v => (v/scaleMax)*100;
+  const crosses = lo < 1;
+  const cls = t => t==="customer_measured" ? "measured" : t==="team_survey" ? "survey" : "est";
+  const nice = t => t.replace(/_/g," ");
+  $("#prodCard").innerHTML = `
+    <div class="strip" style="box-shadow:none">
+      <div><div class="k"><span class="tag meas" style="border:none;padding:0">Measured</span></div>
+        <div class="v">${m.actual_human_hours.toLocaleString()}<span style="font-size:15px;color:var(--ink3)"> h</span></div>
+        <div class="n">Human time actually spent, capped at ${m.session_minutes_cap} min a session</div></div>
+      <div><div class="k"><span class="tag meas" style="border:none;padding:0">Measured</span></div>
+        <div class="v">${m.units_produced.toLocaleString()}</div>
+        <div class="n">Units produced &middot; ${m.units_measured_pct}% from git, the rest counted by the classifier</div></div>
+      <div><div class="k"><span class="tag m" style="border:none;padding:0">Modelled</span></div>
+        <div class="v">${mo.human_equivalent_hours.toLocaleString()}<span style="font-size:15px;color:var(--ink3)"> h</span></div>
+        <div class="n">What those units would have cost a human, per the baselines below</div></div>
+      <div><div class="k"><span class="tag m" style="border:none;padding:0">Modelled</span></div>
+        <div class="v">${mo.hours_saved.toLocaleString()}<span style="font-size:15px;color:var(--ink3)"> h</span></div>
+        <div class="n">Difference. Not converted to dollars</div></div>
+    </div>
+
+    <div class="rangewrap">
+      <div style="font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);
+        margin-bottom:10px">Speedup, across the low and high end of the baselines above</div>
+      <div class="rangebar">
+        <div class="rangefill" style="left:${pos(lo)}%;width:${(pos(hi)-pos(lo)).toFixed(2)}%"></div>
+        <div class="rangeone" style="left:${pos(1)}%" title="parity with a human"></div>
+        <div class="rangept" style="left:${pos(pt)}%"></div>
+        <div style="position:absolute;left:${pos(pt)}%;top:-26px;transform:translateX(-50%);white-space:nowrap;
+          font-family:var(--mono);font-size:14px;font-weight:600;color:var(--accent)">${pt}&times;</div>
+      </div>
+      <div class="ticks"><span>${lo}&times; low</span><span style="color:var(--crit)">1&times; parity</span><span>${hi}&times; high</span></div>
+      ${crosses ? `<p style="font-size:13px;color:var(--warn);margin:14px 0 0;max-width:68ch">
+        <b>The low end falls below parity.</b> At the pessimistic end of the
+        baselines above this work was not faster than doing it by hand. The midpoint is the
+        headline; the range is the truth.</p>` : ""}
+    </div>
+
+    <div style="font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);
+      margin:24px 0 4px">The assumptions this rests on</div>
+    <div style="overflow-x:auto">
+    <table class="assume">
+      <thead><tr><th>Work</th><th>Unit</th><th class="r">Minutes</th><th class="r">Range</th>
+        <th class="r">Counted</th><th>Where the number came from</th></tr></thead>
+      <tbody>${p.assumptions.map(a=>`<tr>
+        <td>${esc(nice(a.task_type))}</td>
+        <td style="color:var(--ink2)">${esc(a.unit)}</td>
+        <td class="r">${a.human_minutes_per_unit}</td>
+        <td class="r" style="color:var(--ink3)">${a.range_minutes?a.range_minutes.join("&ndash;"):"&mdash;"}</td>
+        <td class="r">${Number(a.units_counted).toLocaleString()}</td>
+        <td><span class="src ${cls(a.source_type)}">${esc(nice(a.source_type))}</span>
+          <div style="font-size:11.5px;color:var(--ink3);margin-top:4px">${esc(a.source||"no source recorded")}</div></td>
+      </tr>`).join("")}</tbody>
+    </table></div>
+
+    <ul class="caveats">
+      <li>Covers ${c.coverage_pct}% of sessions &mdash; those with both a counted output and a
+        matching baseline. ${c.sessions_excluded_reverted} reverted sessions were excluded
+        from the gain but kept their full cost.</li>
+      ${p.caveats.map(t=>`<li>${esc(t)}</li>`).join("")}
+    </ul>`;
+}
+
+function renderColophon(s){
+  $("#colophon").innerHTML = `
+    <b>How these numbers were produced.</b> A collector reads the transcripts Claude Code and
+    Cowork already write to disk, prices each request from published list rates, and classifies
+    every session against Northwind's own taxonomy &mdash; on the machine, so prompt text never
+    leaves it. Chat has no local transcript and reaches the ledger through an MCP skill, which
+    is why it carries labels but no cost.<br><br>
+    Classification cost <span class="num">${usd(s.classification_overhead_usd,2)}</span>,
+    or ${s.classification_overhead_pct}% of the spend it attributed.
+    Costs are reconstructed from list prices and will not match an invoice exactly.
+    All figures on this page are synthetic demonstration data.`;
+}
+
+function renderAll(exec, prod){
+  const s = exec.summary;
+  $("#heroSpend").textContent = usd(s.attributed_spend_usd);
+  $("#heroSessions").textContent = s.sessions.toLocaleString();
+  $("#covClass").textContent = s.coverage.classification_pct + "%";
+  $("#covCost").textContent = s.coverage.cost_pct + "%";
+  $("#covUnclass").textContent = s.coverage.unclassified_sessions;
+  renderInitiatives(exec.by_initiative);
+  renderOutcomes(s);
+  renderBudgets(exec.by_initiative);
+  renderTrend(exec.trend);
+  renderCostCenters(exec.by_cost_center);
+  renderSurfaces(exec.by_surface);
+  renderProductivity(prod);
+  renderColophon(s);
+}
+
+function showState(cls, title, body){
+  // Blank the headline figures too. Leaving them up is how a failed load ends up
+  // presenting stale numbers as current — the exact failure this page is about.
+  $("#heroSpend").textContent = "\u2014";
+  $("#heroSessions").textContent = "0";
+  ["#covClass", "#covCost"].forEach(id => { $(id).textContent = "\u2014"; });
+  $("#covUnclass").textContent = "0";
+  document.querySelector(".herosub").hidden = true;
+  document.querySelectorAll(".band").forEach((b,i)=>{ if(i>0) b.hidden = true; });
+  const first = document.querySelector(".band");
+  first.querySelector(".bnote").hidden = true;
+  first.querySelector(".bhead").hidden = true;
+  first.querySelector("#initCard").outerHTML =
+    `<div class="state ${cls}"><h3>${esc(title)}</h3><p>${body}</p></div>`;
+  $("#colophon").innerHTML = "All figures on this page are synthetic demonstration data.";
+}
+
+function setBadge(text, cls){
+  $("#liveNote").textContent = text;
+  const dot = document.querySelector(".live b");
+  dot.className = cls || "";
+}
+
+async function boot(){
+  setBadge("loading…", "loading");
+  const h = {};
+  let actAs = "cfo@example.com";
+
+  // Self-hosted: ask the service for its own demo key rather than carrying a
+  // hardcoded one that goes stale the moment the org is rebuilt.
+  let key = SELF_HOSTED ? null : EMBEDDED_KEY;
+  if (SELF_HOSTED) {
+    try {
+      const r = await fetch(API + "/v1/demo-info");
+      if (r.ok) {
+        const info = await r.json();
+        key = info.api_key;
+        // The org-wide report needs finance or admin; who holds those roles is a
+        // property of the org, not something this page should assume.
+        actAs = info.roles.finance || info.roles.admin || actAs;
+      }
+    } catch (e) {}
+    if (!key) {
+      setBadge("no access", "stale");
+      showState("bad", "This ledger is not open to the public",
+        "The service is running but is not in demo mode, so it will not hand out "
+        + "credentials. Open the admin dashboard and sign in with an API key.");
+      return;
+    }
+  }
+  h["X-API-Key"] = key;
+  h["X-User-Email"] = actAs;
+
+  let org, exec, prod;
+  try {
+    const [ro, re, rp] = await Promise.all([
+      fetch(API + "/v1/org", {headers: h}),
+      fetch(API + "/v1/reports/executive", {headers: h}),
+      fetch(API + "/v1/reports/productivity", {headers: h}),
+    ]);
+    // A rejected request still returns JSON, so status must be checked
+    // explicitly — otherwise a 401 looks like success and the page would show
+    // whatever it had rendered before.
+    if (!re.ok) throw new Error("HTTP " + re.status);
+    org = ro.ok ? await ro.json() : null;
+    exec = await re.json();
+    prod = rp.ok ? await rp.json() : null;
+    if (!exec || !exec.summary) throw new Error("unexpected response");
+  } catch (err) {
+    setBadge("unavailable", "stale");
+    showState("bad", "Could not load the ledger",
+      "The service did not return data for this view. It may be starting up, or "
+      + "this page may no longer have access to it. Nothing is shown rather than "
+      + "showing figures that might be out of date.");
+    return;
+  }
+
+  if (org && org.name) {
+    document.title = `${org.name} Spend Ledger`;
+    const period = exec.trend && exec.trend.length
+      ? `${exec.trend.length} days to ${new Date(exec.trend[exec.trend.length-1].day
+          + "T00:00:00Z").toLocaleDateString("en-US",
+            {day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})}`
+      : "no activity recorded";
+    document.querySelector(".period").textContent = `${org.name} \u00b7 ${period}`;
+  }
+
+  if (!exec.summary.sessions) {
+    setBadge("empty", "loading");
+    showState("", "The ledger is empty",
+      "This organization is configured — its initiatives, task types and "
+      + "baselines are all in place — but no sessions have been collected yet. "
+      + "Run the collector on a machine with Claude history, or file a chat "
+      + "session with the attribution skill, and the figures will appear here.");
+    return;
+  }
+
+  setBadge("live", "");
+  renderAll(exec, (prod && prod.modelled) ? prod : PROD_SNAP);
+}
+
+boot();
+</script>
+
+</body>
+</html>

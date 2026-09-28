@@ -1,0 +1,60 @@
+# The ONE assumption in the product: what a unit of work costs a human.
+# 
+# source_type is ordered by how much weight a reader should give it:
+#   customer_measured  you measured it
+#   team_survey        the team self-reported
+#   industry_estimate  external benchmark
+#   vendor_claim       vendor-supplied, treat with caution
+#   unset              no source - the product will say the figure is illustrative
+# 
+# minutes_low/high produce the sensitivity range. Make them honest: a narrow
+# range asserts more confidence than most baselines deserve.
+
+- task_type_key: coding
+  unit: merged_pr
+  unit_plural: merged PRs
+  human_minutes_per_unit: 240.0
+  minutes_low: 120.0
+  minutes_high: 480.0
+  source: 2026 engineering cycle-time study, 6 months of PR data
+  source_type: customer_measured
+- task_type_key: data-analysis
+  unit: analysis
+  unit_plural: analyses
+  human_minutes_per_unit: 120.0
+  minutes_low: 60.0
+  minutes_high: 240.0
+  source: Analytics team self-report
+  source_type: team_survey
+- task_type_key: marketing-artifact
+  unit: slide
+  unit_plural: slides
+  human_minutes_per_unit: 10.0
+  minutes_low: 7.0
+  minutes_high: 15.0
+  source: 2026 design team time study
+  source_type: customer_measured
+- task_type_key: ops-support
+  unit: incident
+  unit_plural: incidents
+  human_minutes_per_unit: 45.0
+  minutes_low: 20.0
+  minutes_high: 120.0
+  source: Incident log median, 2026 H1
+  source_type: customer_measured
+- task_type_key: research
+  unit: brief
+  unit_plural: briefs
+  human_minutes_per_unit: 90.0
+  minutes_low: 45.0
+  minutes_high: 180.0
+  source: Industry benchmark, not validated internally
+  source_type: industry_estimate
+- task_type_key: strategy-doc
+  unit: document
+  unit_plural: documents
+  human_minutes_per_unit: 180.0
+  minutes_low: 90.0
+  minutes_high: 360.0
+  source: Product team self-report, Q2 2026 retro
+  source_type: team_survey

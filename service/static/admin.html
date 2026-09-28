@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ValueLedger Admin</title>
+<link rel="stylesheet" href="/ui/styles.css">
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <a href="/" style="text-decoration:none"><div class="brand">Value<span>Ledger</span></div></a>
+    <div class="tag" id="orgTag">not connected</div>
+    <div class="spacer"></div>
+    <div class="creds">
+      <input id="apiKey" type="password" placeholder="X-API-Key" autocomplete="off">
+      <input id="userEmail" type="text" placeholder="acting user email" autocomplete="off">
+      <button class="btn" id="connectBtn">Connect</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <nav id="tabs"></nav>
+
+  <!-- ============ SETUP ============ -->
+  <section data-tab="setup">
+    <div class="card">
+      <h2>Connection</h2>
+      <p class="sub">The service authenticates an org by API key. The acting user email
+        determines what you can see — scoping is enforced server-side, so switching the
+        email here genuinely changes the data you are allowed to read.</p>
+      <div id="connState"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" id="newOrgBtn">Create a new org</button>
+        <span class="hint">Returns a fresh API key. Save it — it is not recoverable.</span>
+      </div>
+      <div id="newOrgOut"></div>
+    </div>
+
+    <div class="card">
+      <h2>MCP access tokens</h2>
+      <p class="sub">The MCP server derives the acting user from the bearer token, never
+        from the tool payload — which is why a prompt-injected document cannot publish
+        attribution as someone else. Mint one token per user.</p>
+      <div class="row">
+        <select id="mcpUser" style="max-width:280px"></select>
+        <input id="mcpLabel" placeholder="label (optional)" style="max-width:180px">
+        <button class="btn" id="mintMcp">Mint token</button>
+      </div>
+      <div id="mcpOut"></div>
+      <div id="mcpList" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Policy readiness</h2>
+      <p class="sub">Whether the Attribution Policy is complete enough to classify against.
+        Caught here rather than surfacing as bad labels a week later.</p>
+      <div id="policyStatus"><div class="empty">Connect to check.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ INITIATIVES ============ -->
+  <section data-tab="initiatives" hidden>
+    <div class="card">
+      <h2>Add or update an initiative</h2>
+      <p class="sub">The classification guidance is a prompt, not a description — it is sent
+        verbatim to the classifier. Say what belongs, and say what does <em>not</em>; the
+        exclusions do most of the work in separating adjacent initiatives.</p>
+      <form id="initForm">
+        <div class="grid g3">
+          <div><label>Key</label><input name="key" required placeholder="payments-migration"></div>
+          <div><label>Name</label><input name="name" required placeholder="Payments Migration"></div>
+          <div><label>Owner email</label><input name="owner_email" placeholder="owner@example.com"></div>
+        </div>
+        <div class="grid g3" style="margin-top:12px">
+          <div><label>Cost center</label><input name="cost_center" placeholder="CC-1000 Engineering"></div>
+          <div><label>Budget (USD)</label><input name="budget_amount" type="number" step="0.01" placeholder="12000"></div>
+          <div><label>Budget period</label><input name="budget_period" placeholder="2026-Q3"></div>
+        </div>
+        <div style="margin-top:12px">
+          <label>Classification guidance (sent to the classifier)</label>
+          <textarea name="classification_guidance" placeholder="The Stripe→Adyen cutover. Includes the payments-svc and billing-gateway repos, webhook handling, and reconciliation jobs. Does NOT include general billing UI work — that is Billing UX."></textarea>
+          <div class="hint">Write it as an instruction to a reader who knows nothing about your org.</div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn" type="submit">Save initiative</button>
+          <button class="btn ghost" type="reset">Clear</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Initiatives</h2>
+      <div id="initList"><div class="empty">Connect to load.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ TASK TYPES ============ -->
+  <section data-tab="task-types" hidden>
+    <div class="card">
+      <h2>Add or update a task type</h2>
+      <p class="sub">What <em>kind</em> of work this was — coding, strategy doc, data
+        analysis, marketing artifact. Independent of which initiative it served.</p>
+      <form id="ttForm" data-kind="task-types"></form>
+    </div>
+    <div class="card"><h2>Task types</h2><div id="ttList"><div class="empty">Connect to load.</div></div></div>
+  </section>
+
+  <!-- ============ ACTIVITIES ============ -->
+  <section data-tab="activities" hidden>
+    <div class="card">
+      <h2>Add or update an activity</h2>
+      <p class="sub">The finer verb — feature, bugfix, refactor, test, docs, exploration.
+        Keep <code>exploration</code>: work with no artifact is not automatically waste,
+        and having a label for it keeps dark spend honest.</p>
+      <form id="acForm" data-kind="activities"></form>
+    </div>
+    <div class="card"><h2>Activities</h2><div id="acList"><div class="empty">Connect to load.</div></div></div>
+  </section>
+
+  <!-- ============ USERS ============ -->
+  <section data-tab="users" hidden>
+    <div class="card">
+      <h2>Add or update a user</h2>
+      <p class="sub">Cost center drives the finance rollup. Role drives what they can read:
+        <code>member</code> sees only their own sessions, <code>initiative_owner</code> sees
+        initiatives they own, <code>finance</code> and <code>admin</code> see everything.</p>
+      <form id="userForm">
+        <div class="grid g3">
+          <div><label>Email</label><input name="email" required placeholder="dana.lee@example.com"></div>
+          <div><label>Display name</label><input name="display_name" placeholder="Dana Lee"></div>
+          <div><label>Role</label><select name="role">
+            <option value="member">member</option>
+            <option value="initiative_owner">initiative_owner</option>
+            <option value="finance">finance</option>
+            <option value="admin">admin</option>
+          </select></div>
+        </div>
+        <div class="grid g2" style="margin-top:12px">
+          <div><label>Cost center</label><input name="cost_center" placeholder="CC-1000 Engineering"></div>
+          <div><label>Manager email</label><input name="manager_email" placeholder="manager@example.com"></div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn" type="submit">Save user</button>
+          <button class="btn ghost" type="reset">Clear</button>
+        </div>
+      </form>
+    </div>
+    <div class="card"><h2>Users</h2><div id="userList"><div class="empty">Connect to load.</div></div></div>
+  </section>
+
+  <!-- ============ BUDGETS ============ -->
+  <section data-tab="budgets" hidden>
+    <div class="card">
+      <h2>Set a budget</h2>
+      <p class="sub">Budgets are observed, not enforced — cost cannot be known before a task
+        runs, so this is a detective control. Burn is reported against it; nothing is blocked.</p>
+      <form id="budgetForm">
+        <div class="grid g4">
+          <div><label>Scope</label><select name="scope_type">
+            <option value="initiative">initiative</option>
+            <option value="cost_center">cost_center</option>
+            <option value="org">org</option>
+          </select></div>
+          <div><label>Scope target</label><select name="scope_id" id="budgetScopeId"></select></div>
+          <div><label>Period</label><input name="period" placeholder="2026-Q3" required></div>
+          <div><label>Amount (USD)</label><input name="amount_usd" type="number" step="0.01" required></div>
+        </div>
+        <div class="row" style="margin-top:14px"><button class="btn" type="submit">Save budget</button></div>
+      </form>
+    </div>
+    <div class="card"><h2>Budgets</h2><div id="budgetList"><div class="empty">Connect to load.</div></div></div>
+  </section>
+
+  <!-- ============ POLICY ============ -->
+  <section data-tab="policy" hidden>
+    <div class="card">
+      <h2>Global guidance</h2>
+      <p class="sub">The preamble every classification runs with. Editing this republishes the
+        policy at a new version — every client picks it up on its next fetch, with no client
+        release.</p>
+      <textarea id="globalGuidance" style="min-height:150px"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="saveGuidance">Publish new version</button>
+        <span class="hint" id="guidanceVer"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Output extraction guidance</h2>
+      <p class="sub">The second half of the classifier prompt: how to count the units of work
+        a session produced. These counts are the measured numerator of every productivity
+        figure, so the instruction is biased toward undercounting.</p>
+      <textarea id="extractionGuidance" style="min-height:150px"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="saveExtraction">Publish new version</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Bundle preview</h2>
+      <p class="sub">Exactly what <code>get_attribution_policy()</code> returns to the collector
+        and the chat skill. If it looks wrong here, classification will be wrong.</p>
+      <pre id="bundlePreview">Connect to load.</pre>
+    </div>
+  </section>
+
+  <!-- ============ PRODUCTIVITY ============ -->
+  <section data-tab="productivity" hidden>
+    <div class="card">
+      <h2>Productivity baselines</h2>
+      <p class="sub">This is the <strong>one assumption</strong> in the product. Everything
+        else ValueLedger reports is measured; a baseline is your estimate of what a unit of
+        work costs a human. It is stored with its source and a low/high band, and every
+        productivity figure is rendered with both attached — so a reader can see exactly how
+        much the conclusion rests on the guess.</p>
+      <form id="baselineForm">
+        <div class="grid g3">
+          <div><label>Task type</label><select name="task_type_key" id="blTaskType"></select></div>
+          <div><label>Unit</label><input name="unit" required placeholder="slide"></div>
+          <div><label>Unit plural</label><input name="unit_plural" placeholder="slides"></div>
+        </div>
+        <div class="grid g3" style="margin-top:12px">
+          <div><label>Human minutes per unit</label><input name="human_minutes_per_unit" type="number" step="0.5" required placeholder="10"></div>
+          <div><label>Low estimate (min)</label><input name="minutes_low" type="number" step="0.5" placeholder="7"></div>
+          <div><label>High estimate (min)</label><input name="minutes_high" type="number" step="0.5" placeholder="15"></div>
+        </div>
+        <div class="grid g2" style="margin-top:12px">
+          <div><label>Source type</label><select name="source_type">
+            <option value="customer_measured">customer_measured — you measured it</option>
+            <option value="team_survey">team_survey — the team self-reported</option>
+            <option value="industry_estimate">industry_estimate — external benchmark</option>
+            <option value="vendor_claim">vendor_claim — treat with caution</option>
+            <option value="unset">unset — not credible</option>
+          </select></div>
+          <div><label>Source</label><input name="source" placeholder="2026 design team time study"></div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn" type="submit">Save baseline</button>
+          <button class="btn ghost" type="reset">Clear</button>
+        </div>
+        <div class="hint">A baseline with no credible source still computes, but the report
+          will say so in its caveats and the policy will flag it.</div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Baselines in use</h2>
+      <div id="baselineList"><div class="empty">Connect to load.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Efficiency gain</h2>
+      <p class="sub">Measured and modelled are kept apart on purpose. The band shows what the
+        answer becomes at the low and high end of your own baselines.</p>
+      <div id="prodReport"><div class="empty">Connect to load.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Session time cap</h2>
+      <p class="sub">Actual human time is session wall-clock, capped per session — a session
+        left open overnight is not eight hours of attention.</p>
+      <div class="row">
+        <input id="capInput" type="number" min="5" max="480" style="width:120px">
+        <span class="hint">minutes per session</span>
+        <button class="btn ghost" id="saveCap">Save</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEDGER ============ -->
+  <section data-tab="ledger" hidden>
+    <div class="card">
+      <h2>Ledger</h2>
+      <p class="sub">What the service currently holds, scoped to the acting user. Change the
+        email in the header to see scoping take effect.</p>
+      <div id="ledgerSummary"><div class="empty">Connect to load.</div></div>
+    </div>
+    <div class="card">
+      <h2>By initiative</h2>
+      <div id="ledgerByInit"><div class="empty">—</div></div>
+    </div>
+    <div class="card">
+      <h2>Price book</h2>
+      <p class="sub">Cost is computed here from raw token counts, never accepted from a client.
+        Raw counts are stored so the whole ledger is recomputable when prices change.</p>
+      <div id="priceBook"><div class="empty">—</div></div>
+    </div>
+  </section>
+</main>
+
+<div id="toast"></div>
+<script src="/ui/app.js"></script>
+</body>
+</html>

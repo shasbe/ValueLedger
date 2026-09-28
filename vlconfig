@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# ValueLedger configuration as files.
+#
+#   ./vlconfig init      write a starter config into config/
+#   ./vlconfig export    pull a service's current state into config/
+#   ./vlconfig diff      show what apply would change
+#   ./vlconfig apply     push config/ to the service
+#
+# Set once, or pass --url / --api-key / --user:
+#   export VALUELEDGER_URL=https://your-service
+#   export VALUELEDGER_API_KEY=vl_...
+#   export VALUELEDGER_ADMIN=you@yourcompany.com
+set -euo pipefail
+cd "$(dirname "$0")"
+[ -d .venv ] || { echo "Run ./run.sh once first to create the venv."; exit 1; }
+exec env PYTHONPATH=scripts ./.venv/bin/python scripts/vlconfig.py "$@"

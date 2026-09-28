@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ValueLedger</title>
+<link rel="stylesheet" href="/ui/styles.css">
+<style>
+  main.landing { max-width: 880px; }
+  .hero { padding: 40px 0 26px; }
+  .hero h1 { font-size: 30px; margin: 0 0 10px; letter-spacing: -0.025em; font-weight: 640; }
+  .hero h1 span { color: var(--accent); }
+  .hero .lede { font-size: 15.5px; color: var(--text-dim); max-width: 60ch; line-height: 1.6; }
+  .hero .lede b { color: var(--text); font-weight: 560; }
+  .eq { font-family: var(--mono); font-size: 12.5px; background: var(--surface-2);
+        border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;
+        margin: 20px 0 0; white-space: pre; overflow-x: auto; line-height: 1.6; }
+  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 760px) { .roles { grid-template-columns: 1fr; } }
+  .role { display: block; text-align: left; background: var(--surface);
+          border: 1px solid var(--border); border-radius: var(--radius);
+          padding: 16px; cursor: pointer; font-family: inherit; color: var(--text);
+          transition: border-color .15s; }
+  .role:hover { border-color: var(--accent); }
+  .role .r { font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+             color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+  .role .n { font-size: 14.5px; font-weight: 580; margin-bottom: 5px; }
+  .role .d { font-size: 12.5px; color: var(--text-dim); line-height: 1.5; }
+  ol.steps { padding-left: 20px; margin: 0; font-size: 13.5px; line-height: 1.75; }
+  ol.steps li { margin-bottom: 7px; }
+  .copy { position: relative; }
+  .copy button { position: absolute; top: 8px; right: 8px; font-size: 11px;
+                 padding: 4px 9px; background: var(--surface); color: var(--text-dim);
+                 border: 1px solid var(--border-strong); border-radius: 5px;
+                 cursor: pointer; font-family: inherit; }
+  .copy button:hover { color: var(--text); }
+  .look { list-style: none; padding: 0; margin: 0; }
+  .look li { padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 13.5px;
+             line-height: 1.6; }
+  .look li:last-child { border-bottom: none; }
+  .look b { font-weight: 580; }
+  .look .why { color: var(--text-dim); display: block; margin-top: 2px; font-size: 12.5px; }
+  footer { color: var(--text-faint); font-size: 12px; padding: 30px 0 10px;
+           border-top: 1px solid var(--border); margin-top: 30px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<main class="landing">
+
+  <div class="hero">
+    <h1>Value<span>Ledger</span></h1>
+    <p class="lede">Claude Enterprise bills consumption across Claude Code, Cowork, and
+      chat, and every dollar is unlabeled. ValueLedger creates the missing record:
+      <b>this $4.12 went to Payments Migration, doing refactor work, and produced commit
+      a3f91c which merged in PR #4412.</b></p>
+    <div class="eq">attributed cost  ×  verifiable output  =  a number a CFO can defend</div>
+  </div>
+
+  <div class="card">
+    <h2>The CFO view</h2>
+    <p class="sub">One page answering where the money went, what came out of it, and what
+      it was worth &mdash; with the one modelled number kept visibly apart from the
+      measured ones.</p>
+    <a class="btn" href="/dashboard">Open the spend ledger</a>
+  </div>
+
+  <div class="card">
+    <h2>Explore the data yourself</h2>
+    <p class="sub">Role scoping is enforced in the query layer, not the UI — so these
+      genuinely show different data. Pick one; credentials are filled in for you.</p>
+    <div class="roles" id="roles"></div>
+    <div class="hint" id="demoNote" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Connect it to Claude</h2>
+    <p class="sub">The same ledger is reachable over MCP, so you can ask questions of it
+      from inside Claude rather than reading a dashboard.</p>
+
+    <h3 style="font-size:13px;margin:18px 0 6px">Claude Desktop</h3>
+    <p class="sub" style="margin-bottom:8px">Add this to
+      <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>,
+      then fully quit and reopen Claude Desktop. Cowork picks it up from the same file.</p>
+    <div class="copy">
+      <button onclick="copyEl('desktopCfg')">copy</button>
+      <pre id="desktopCfg">loading…</pre>
+    </div>
+
+    <h3 style="font-size:13px;margin:22px 0 6px">Claude.ai (chat)</h3>
+    <p class="sub" style="margin-bottom:8px">Settings → Connectors → Add custom connector.
+      Claude registers itself and walks you through OAuth; the consent screen is
+      pre-filled on this demo.</p>
+    <div class="copy">
+      <button onclick="copyEl('mcpUrl')">copy</button>
+      <pre id="mcpUrl">loading…</pre>
+    </div>
+
+    <h3 style="font-size:13px;margin:22px 0 6px">Then ask</h3>
+    <ol class="steps">
+      <li>“Which initiative has the worst cost per merged PR?”</li>
+      <li>“How much of the Payments Migration spend produced no durable artifact?”</li>
+      <li>“Fetch the attribution policy and summarise the initiatives.”</li>
+      <li>“Record this conversation against developer-platform as a strategy doc.”</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>What's worth looking at</h2>
+    <ul class="look">
+      <li><b>Coverage is two numbers, never one.</b>
+        <span class="why">Classification ~96%, cost ~87%. The gap is chat: it can be
+        classified but not priced, because the model cannot see its own token usage.
+        Collapsing these into one number would hide exactly the thing a CFO needs to
+        know.</span></li>
+      <li><b>Dark spend.</b>
+        <span class="why">Money on sessions that produced no durable artifact — ~19%
+        here. Requires cost and outcomes joined at session grain, which nothing in a
+        normal FinOps stack has.</span></li>
+      <li><b>Productivity is the one modelled metric, and says so.</b>
+        <span class="why">1.59× — but the range is 0.82×–3.21×, and the low end falls
+        below 1×. The UI leads with that rather than the midpoint. Change a baseline on
+        the Productivity tab and every number moves.</span></li>
+      <li><b>Classification overhead, self-metered.</b>
+        <span class="why">0.13% of tracked spend. A cost-control tool that quietly costs
+        money is self-defeating, so it meters itself in public.</span></li>
+      <li><b>Try to break the MCP trust boundary.</b>
+        <span class="why">Publish an attribution naming an initiative that doesn't exist,
+        or claiming a different user and a cost — the initiative is refused, and identity
+        and cost come from the token, never the payload.</span></li>
+      <li><b>Switch roles and watch the numbers change.</b>
+        <span class="why">A member asking for another user's rows gets their own back —
+        filtered server-side, not hidden in the UI.</span></li>
+    </ul>
+  </div>
+
+  <footer>
+    All data is synthetic — 1,070 sessions across 6 initiatives, 40 users, 4 cost centers,
+    90 days. Costs are reconstructed from public list prices, so they will not match any
+    real invoice.<br>
+    <a href="/docs" style="color:var(--accent)">API docs</a> ·
+    <a href="/admin" style="color:var(--accent)">Admin UI</a> ·
+    <a href="/health" style="color:var(--accent)">Health</a>
+  </footer>
+</main>
+
+<div id="toast"></div>
+<script>
+const ROLES = [
+  ["finance", "Finance / CFO", "Company totals, every initiative, cost centers, forecast. The buyer's view."],
+  ["initiative_owner", "Initiative Owner", "Only initiatives they own. Burn vs budget, dark spend, review queue."],
+  ["member", "Developer", "Only their own sessions. Proves the scoping is real, not cosmetic."],
+];
+let INFO = null;
+
+function toast(m) {
+  const t = document.getElementById("toast");
+  t.textContent = m; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+function copyEl(id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent)
+    .then(() => toast("Copied")).catch(() => toast("Copy failed"));
+}
+function openAs(email) {
+  if (!INFO) return;
+  location.href = `/admin#key=${encodeURIComponent(INFO.api_key)}`
+                + `&email=${encodeURIComponent(email)}`;
+}
+
+(async () => {
+  const origin = location.origin;
+  document.getElementById("mcpUrl").textContent = origin + "/mcp";
+  try {
+    INFO = await (await fetch("/v1/demo-info")).json();
+  } catch (e) {}
+
+  const box = document.getElementById("roles");
+  if (!INFO) {
+    box.innerHTML = '<div class="hint">This instance is not in demo mode — '
+      + 'open <a href="/admin" style="color:var(--accent)">the admin UI</a> '
+      + 'and enter an API key.</div>';
+    document.getElementById("desktopCfg").textContent = JSON.stringify({
+      mcpServers: { valueledger: { command: "npx", args: ["-y", "mcp-remote",
+        origin + "/mcp", "--transport", "http-only",
+        "--header", "Authorization: Bearer <your-token>"] } } }, null, 2);
+    return;
+  }
+
+  box.innerHTML = "";
+  for (const [key, name, desc] of ROLES) {
+    const email = INFO.roles[key];
+    if (!email) continue;
+    const b = document.createElement("button");
+    b.className = "role";
+    b.onclick = () => openAs(email);
+    b.innerHTML = `<div class="r">${key.replace("_", " ")}</div>`
+                + `<div class="n">${name}</div>`
+                + `<div class="d">${desc}</div>`
+                + `<div class="d mono" style="margin-top:7px;opacity:.75">${email}</div>`;
+    box.appendChild(b);
+  }
+  document.getElementById("demoNote").innerHTML =
+    `Organization <b>${INFO.org_name}</b> · API key <code>${INFO.api_key}</code>`
+    + (INFO.owned_initiative
+        ? ` · the initiative owner above owns <code>${INFO.owned_initiative}</code>` : "");
+
+  document.getElementById("desktopCfg").textContent = JSON.stringify({
+    mcpServers: { valueledger: { command: "npx", args: ["-y", "mcp-remote",
+      origin + "/mcp", "--transport", "http-only",
+      "--header", "Authorization: Bearer <mint one on the Setup tab>"] } } }, null, 2);
+})();
+</script>
+</body>
+</html>

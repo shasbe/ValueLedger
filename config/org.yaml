@@ -1,0 +1,19 @@
+# Organization settings and the two prompts every classification runs with.
+# session_minutes_cap bounds how much of a session's wall-clock counts as
+# human attention, because a session left open overnight is not eight hours.
+
+name: Neo4j
+privacy_mode: local
+session_minutes_cap: 90
+global_guidance: |
+  You are classifying a completed Claude session against this organization's attribution taxonomy. You are given the user's typed prompts in order, plus repository and branch context.
+
+  Judge the work that was actually done, not what was merely discussed. Weigh the first and last prompts most heavily: the first states intent, the last shows where the work landed.
+
+  If no initiative in the taxonomy genuinely fits, return `unknown` rather than forcing the closest match. A wrong label is worse than an absent one — unclassified work is a signal that the taxonomy is missing something.
+output_extraction_guidance: |
+  After classifying the session, count the units of work it actually produced, using the unit defined for the chosen task type in `baselines`.
+
+  Count only work that was completed and kept in this session. Do not count drafts that were discarded, work the user rejected, or things merely discussed or planned. If the session produced nothing durable, return an empty list — that is a normal and useful answer, not a failure.
+
+  Prefer undercounting to overcounting. These numbers feed a productivity estimate that a finance team will scrutinise, and an inflated count discredits every other number in the report. When genuinely unsure between two values, return the lower one.

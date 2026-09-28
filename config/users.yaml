@@ -1,0 +1,61 @@
+# People, and what each may read.
+#   member            only their own sessions
+#   initiative_owner  initiatives where owner_email matches
+#   finance           everything, read-only
+#   admin             everything, plus policy and taxonomy
+
+- email: admin@neo4j.com
+  display_name: Platform Admin
+  role: admin
+  cost_center: CC-4000 Platform
+  manager_email: null
+- email: shasbe@neo4j.com
+  display_name: Sudhir Hasbe
+  role: initiative_owner
+  cost_center: CC-2000 Data
+  manager_email: emil@neo4j.com
+- email: woody@neo4j.com
+  display_name: Mark Woodhams
+  role: initiative_owner
+  cost_center: CC-3000 Growth
+  manager_email: emil@neo4j.com
+- email: yoav@neo4j.com
+  display_name: Yoav 
+  role: initiative_owner
+  cost_center: CC-2000 Data
+  manager_email: shasbe@neo4j.com
+- email: cfo@neo4j.com
+  display_name: Finance
+  role: finance
+  cost_center: CC-4000 Platform
+  manager_email: null
+- email: magnus@neo4j.com
+  display_name: Magnus Vejlstrup
+  role: initiative_owner
+  cost_center: CC-1000 Engineering
+  manager_email: emil@neo4j.com
+- email: john@neo4j.com
+  display_name: John Justice
+  role: initiative_owner
+  cost_center: CC-1001 Marketing
+  manager_email: woody@neo4j.com
+- email: emil@neo4j.com
+  display_name: Emil Eifrem
+  role: initiative_owner
+  cost_center: CC-7000 GA
+  manager_email: null
+- email: demo@neo4j.com
+  display_name: Demo User
+  role: member
+  cost_center: CC-2000 Data
+  manager_email: null
+- email: steve@neo4j.com
+  display_name: Demo User (Steve)
+  role: member
+  cost_center: CC-2000 Data
+  manager_email: null
+- email: tim@neo4j.com
+  display_name: Demo User (Tim)
+  role: member
+  cost_center: CC-2000 Data
+  manager_email: null

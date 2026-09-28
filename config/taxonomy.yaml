@@ -1,0 +1,54 @@
+# What KIND of work (task type) and the finer verb (activity).
+# These change rarely; initiatives change often.
+
+task_types:
+- key: coding
+  name: Coding
+  classification_guidance: |
+    Writing, modifying, reviewing or debugging production code, tests, infrastructure-as-code or build configuration.
+- key: data-analysis
+  name: Data Analysis
+  classification_guidance: |
+    Querying, exploring, modelling or visualising data to answer a question. Includes notebooks and ad-hoc SQL.
+- key: marketing-artifact
+  name: Marketing Artifact
+  classification_guidance: |
+    Customer-facing copy, launch content, release notes, landing pages and campaign material.
+- key: ops-support
+  name: Ops / Support
+  classification_guidance: |
+    Incident response, on-call investigation, production debugging, and customer escalations.
+- key: research
+  name: Research
+  classification_guidance: |
+    Investigating options, reading documentation, evaluating libraries or vendors, and spikes that inform a later decision.
+- key: strategy-doc
+  name: Strategy Doc
+  classification_guidance: |
+    Planning documents, technical designs, RFCs, architecture proposals, roadmaps and decision records.
+activities:
+- key: bugfix
+  name: Bug Fix
+  classification_guidance: Correcting defective behaviour in existing code.
+- key: docs
+  name: Documentation
+  classification_guidance: Writing or updating documentation and comments.
+- key: exploration
+  name: Exploration
+  classification_guidance: |
+    Open-ended investigation with no committed artifact expected. Legitimate work — not the same as waste.
+- key: feature
+  name: Feature Development
+  classification_guidance: Building new user-visible capability.
+- key: refactor
+  name: Refactor
+  classification_guidance: Restructuring existing code without changing behaviour.
+- key: review
+  name: Code Review
+  classification_guidance: Reviewing changes authored by someone else.
+- key: scaffolding
+  name: Scaffolding
+  classification_guidance: Project setup, boilerplate, and generated structure.
+- key: test
+  name: Testing
+  classification_guidance: Writing or repairing automated tests.

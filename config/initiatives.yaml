@@ -1,0 +1,80 @@
+# The initiatives spend is attributed to. This is the file you will edit most.
+# 
+# classification_guidance is a PROMPT, not a description: it is sent verbatim to
+# the classifier. Say what belongs, and say what does NOT - the exclusions do most
+# of the work in separating adjacent initiatives.
+
+- key: sales
+  name: Driving Sales
+  owner_email: woody@neo4j.com
+  cost_center: CC-3000 Growth
+  budget_amount: 6000.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    All activities related to driving sales especially talking to customers, engaging with salesforce should be in this category. All coding tasks related to building prototypes for customers is also in this category
+- key: data-platform
+  name: Data Platform
+  owner_email: yoav@neo4j.com
+  cost_center: CC-2000 Data
+  budget_amount: 9000.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    The warehouse, dbt models, ingestion pipelines and data quality checks. Anything in the analytics or pipelines repos.
+- key: developer-platform
+  name: Developer Platform
+  owner_email: magnus@neo4j.com
+  cost_center: CC-1000 Engineering
+  budget_amount: 7500.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    Internal tooling, CI/CD, build systems, developer environments and the service scaffolding templates. The infra and tooling repos. Prioritize this over engineering. Anything that is not developer-platform is KTLO
+- key: plg
+  name: Product Led Growth
+  owner_email: shasbe@neo4j.com
+  cost_center: CC-2000 Data
+  budget_amount: 8000.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    Everything to drive revenue based on product enhancements will go under this category. Product led growth strategy, features that improve self service adoption will also be here. Exclude anything that is for VirtualDB from this category.
+- key: virtualdb
+  name: Virtual Graph
+  owner_email: shasbe@neo4j.com
+  cost_center: CC-3000 Growth
+  budget_amount: 5500.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    The Virtual Graph product line, end to end — strategy through execution and launch, plus customer-facing features and all Ontologies work.
+
+    Read "virtual graph" broadly: it covers any graph engine work in this line, including embedded and in-process engines where graph state lives inside the host application. It is NOT limited to federated or projected views over data held in external systems, which is what the phrase often means elsewhere.
+- key: marketing
+  name: marketing programs
+  owner_email: john@neo4j.com
+  cost_center: CC-1001 Marketing
+  budget_amount: 12000.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    All activities that are related to marketing and targeting of customers will be under this initiative. Exclude any Product led growth activities from this category. Also exclude VirtualDB from this category.
+- key: engineering
+  name: Engineering KTLO
+  owner_email: magnus@neo4j.com
+  cost_center: CC-1000 Engineering
+  budget_amount: 12000.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    All activities that are related to keeping lights on in engineering. All software development that is not specifically for any initiative and not customer specific prototypes will be under this category. In case of conflict with sales - prioritize all customer engagement software development to sales
+- key: unknown
+  name: Unknown Initiatives
+  owner_email: john@neo4j.com
+  cost_center: CC-7000 GA
+  budget_amount: 12000.0
+  budget_period: 2026-Q3
+  status: active
+  classification_guidance: |
+    Unknown includes all expenses that were not categorized in any other category.

@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local database — the service recreates it on boot
+*.db
+*.db-wal
+*.db-shm
+
+# Build artifact. Rebuild with ./package.sh — it carries a live API key, so it
+# does not belong in version control even in a private repo.
+valueledger-collector.zip
+valueledger-collector/
+
+# Local collector state
+.valueledger/
+
+# macOS
+.DS_Store
